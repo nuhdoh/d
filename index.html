@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2025 by anonymous (http://jsbin.com/powuquyuxo/7/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 오늘의 운세</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .date-display {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #ff6b6b;
+            transition: transform 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .step.completed {
+            border-left-color: #4ecdc4;
+            background: #e8f5e8;
+        }
+        
+        .step-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+        
+        .zodiac-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .zodiac-btn {
+            padding: 15px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        
+        .zodiac-btn:hover {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+        }
+        
+        .zodiac-btn.selected {
+            border-color: #ff6b6b;
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .mood-selector {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        
+        .mood-btn {
+            font-size: 2.5em;
+            padding: 15px;
+            border: 3px solid transparent;
+            border-radius: 50%;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mood-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        .mood-btn.selected {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            cursor: pointer;
+        }
+        
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .current-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        
+        .fortune-result {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .fortune-result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fortune-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        .fortune-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .lucky-numbers {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .lucky-number {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .save-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 25px;
+            background: #f0f8ff;
+            border-radius: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .zodiac-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔮 오늘의 운세</h1>
+            <div class="date-display" id="currentDate"></div>
+        </div>
+        
+        <div class="content">
+            <!-- 1단계: 기본 정보 입력 -->
+            <div class="step" id="step1">
+                <div class="step-title">1️⃣ 기본 정보를 입력해주세요</div>
+                
+                <div class="input-group">
+                    <label>이름 (별명 가능)</label>
+                    <input type="text" id="userName" placeholder="예: 홍길동" maxlength="10">
+                </div>
+                
+                <div class="input-group">
+                    <label>생년월일</label>
+                    <input type="date" id="birthDate">
+                </div>
+                
+                <div class="input-group">
+                    <label>성별</label>
+                    <select id="gender">
+                        <option value="">선택해주세요</option>
+                        <option value="male">남성</option>
+                        <option value="female">여성</option>
+                        <option value="other">기타</option>
+                    </select>
+                </div>
+                
+                <button class="btn" id="step1Btn">다음 단계</button>
+            </div>
+            
+            <!-- 2단계: 별자리 선택 -->
+            <div class="step" id="step2">
+                <div class="step-title">2️⃣ 별자리를 선택해주세요</div>
+                
+                <div class="zodiac-grid" id="zodiacGrid">
+                    <div class="zodiac-btn" data-zodiac="양자리">♈ 양자리<br><small>3.21-4.19</small></div>
+                    <div class="zodiac-btn" data-zodiac="황소자리">♉ 황소자리<br><small>4.20-5.20</small></div>
+                    <div class="zodiac-btn" data-zodiac="쌍둥이자리">♊ 쌍둥이자리<br><small>5.21-6.21</small></div>
+                    <div class="zodiac-btn" data-zodiac="게자리">♋ 게자리<br><small>6.22-7.22</small></div>
+                    <div class="zodiac-btn" data-zodiac="사자자리">♌ 사자자리<br><small>7.23-8.22</small></div>
+                    <div class="zodiac-btn" data-zodiac="처녀자리">♍ 처녀자리<br><small>8.23-9.23</small></div>
+                    <div class="zodiac-btn" data-zodiac="천칭자리">♎ 천칭자리<br><small>9.24-10.22</small></div>
+                    <div class="zodiac-btn" data-zodiac="전갈자리">♏ 전갈자리<br><small>10.23-11.22</small></div>
+                    <div class="zodiac-btn" data-zodiac="사수자리">♐ 사수자리<br><small>11.23-12.21</small></div>
+                    <div class="zodiac-btn" data-zodiac="염소자리">♑ 염소자리<br><small>12.22-1.19</small></div>
+                    <div class="zodiac-btn" data-zodiac="물병자리">♒ 물병자리<br><small>1.20-2.18</small></div>
+                    <div class="zodiac-btn" data-zodiac="물고기자리">♓ 물고기자리<br><small>2.19-3.20</small></div>
+                </div>
+                
+                <button class="btn" id="step2Btn" disabled>다음 단계</button>
+            </div>
+            
+            <!-- 3단계: 현재 기분 -->
+            <div class="step" id="step3">
+                <div class="step-title">3️⃣ 지금 기분은 어떠신가요?</div>
+                
+                <div class="mood-selector" id="moodSelector">
+                    <button class="mood-btn" data-mood="1">😢</button>
+                    <button class="mood-btn" data-mood="2">😔</button>
+                    <button class="mood-btn" data-mood="3">😐</button>
+                    <button class="mood-btn" data-mood="4">🙂</button>
+                    <button class="mood-btn" data-mood="5">😊</button>
+                    <button class="mood-btn" data-mood="6">😍</button>
+                </div>
+                
+                <div class="slider-container">
+                    <label>오늘의 에너지 레벨</label>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="energyLevel">
+                    <div class="value-display">
+                        <span>낮음</span>
+                        <span class="current-value" id="energyLevelValue">5/10</span>
+                        <span>높음</span>
+                    </div>
+                </div>
+                
+                <button class="btn" id="step3Btn" disabled>다음 단계</button>
+            </div>
+            
+            <!-- 4단계: 관심사 선택 -->
+            <div class="step" id="step4">
+                <div class="step-title">4️⃣ 오늘 가장 궁금한 것을 선택해주세요</div>
+                
+                <div class="input-group">
+                    <label>관심 분야</label>
+                    <select id="interest">
+                        <option value="">선택해주세요</option>
+                        <option value="love">💕 연애운</option>
+                        <option value="money">💰 금전운</option>
+                        <option value="career">💼 사업/직장운</option>
+                        <option value="health">🍃 건강운</option>
+                        <option value="study">📚 학업운</option>
+                        <option value="friendship">👥 인간관계</option>
+                    </select>
+                </div>
+                
+                <div class="slider-container">
+                    <label>이 분야에 대한 기대치</label>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="expectation">
+                    <div class="value-display">
+                        <span>낮음</span>
+                        <span class="current-value" id="expectationValue">5/10</span>
+                        <span>높음</span>
+                    </div>
+                </div>
+                
+                <button class="btn" id="fortuneBtn">🔮 운세 확인하기</button>
+            </div>
+            
+            <!-- 운세 결과 -->
+            <div class="fortune-result" id="fortuneResult">
+                <div class="fortune-title" id="fortuneTitle">🌟 오늘의 운세</div>
+                <div class="fortune-text" id="fortuneText"></div>
+                <div>
+                    <strong>행운의 숫자:</strong>
+                    <div class="lucky-numbers" id="luckyNumbers"></div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <strong>행운의 색상:</strong> <span id="luckyColor"></span>
+                </div>
+            </div>
+            
+            <!-- 진행률 -->
+            <div style="margin: 20px 0;">
+                <label>완료 진행률</label>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px;">
+                    <span id="progressText">0% 완료</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // 전역 변수 선언
+        // =============================================
+        
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvw-dTBWw7S2mspGBoLgIUt6mVMcM-HS0Jqa4cM9UwtK7QnoEFNnYheHHSxpR7dw_F/exec';
+        
+        let userData = {
+            sessionId: 'fortune_' + Date.now(),
+            startTime: Date.now(),
+            userActions: [],
+            completedSteps: 0,
+            userData: {}
+        };
+        
+        let selectedZodiac = '';
+        let selectedMood = 0;
+        let fortuneGenerated = false;
+        
+        // =============================================
+        // 유틸리티 함수들
+        // =============================================
+        
+        function updateDate() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('ko-KR', options);
+        }
+        
+        function logUserAction(action, value) {
+            const actionData = {
+                time: new Date().toLocaleTimeString(),
+                action: action,
+                value: value,
+                timeFromStart: Math.round((Date.now() - userData.startTime) / 1000)
+            };
+            
+            userData.userActions.push(actionData);
+            console.log('기록된 행동:', actionData);
+        }
+        
+        function updateProgress() {
+            const progress = Math.round((userData.completedSteps / 4) * 100);
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+            }
+            
+            if (progressText) {
+                progressText.textContent = progress + '% 완료';
+            }
+            
+        }
+        
+        // =============================================
+        // 단계 완료 함수
+        // =============================================
+        
+        function completeStep(stepNumber) {
+            console.log('단계 완료:', stepNumber);
+            
+            // 단계별 유효성 검사
+            if (stepNumber === 1) {
+                const name = document.getElementById('userName').value.trim();
+                const birth = document.getElementById('birthDate').value;
+                const gender = document.getElementById('gender').value;
+                
+                if (!name || !birth || !gender) {
+                    alert('모든 정보를 입력해주세요!');
+                    return;
+                }
+                
+                userData.userData.name = name;
+                userData.userData.birth = birth;
+                userData.userData.gender = gender;
+                
+                logUserAction('user_info_complete', {name: name.length, birth: birth, gender: gender});
+            }
+            
+            if (stepNumber === 2) {
+                if (!selectedZodiac) {
+                    alert('별자리를 선택해주세요!');
+                    return;
+                }
+                userData.userData.zodiac = selectedZodiac;
+            }
+            
+            if (stepNumber === 3) {
+                if (!selectedMood) {
+                    alert('기분을 선택해주세요!');
+                    return;
+                }
+                userData.userData.mood = selectedMood;
+                userData.userData.energyLevel = document.getElementById('energyLevel').value;
+            }
+            
+            if (stepNumber === 4) {
+                const interest = document.getElementById('interest').value;
+                if (!interest) {
+                    alert('관심 분야를 선택해주세요!');
+                    return;
+                }
+                userData.userData.interest = interest;
+                userData.userData.expectation = document.getElementById('expectation').value;
+            }
+            
+            // 단계 완료 표시
+            const step = document.getElementById('step' + stepNumber);
+            step.classList.add('completed');
+            userData.completedSteps = stepNumber;
+            updateProgress();
+            
+            logUserAction('step_complete', stepNumber);
+        }
+        
+        // =============================================
+        // 운세 관련 함수들
+        // =============================================
+        
+        function generateFortune() {
+            console.log('운세 생성 시작');
+            
+            const interest = document.getElementById('interest').value;
+            const energyLevel = document.getElementById('energyLevel').value;
+            const expectation = document.getElementById('expectation').value;
+            
+            if (!interest) {
+                alert('관심 분야를 선택해주세요!');
+                return;
+            }
+            
+            logUserAction('fortune_generate', {
+                interest: interest,
+                energy: energyLevel,
+                expectation: expectation
+            });
+            
+            // 운세 데이터 생성
+            const fortunes = generateFortuneData(selectedZodiac, interest, selectedMood, energyLevel, expectation);
+            
+            // 결과 표시 (안전한 요소 접근)
+            const fortuneTitle = document.getElementById('fortuneTitle');
+            const fortuneText = document.getElementById('fortuneText');
+            const luckyNumbers = document.getElementById('luckyNumbers');
+            const luckyColor = document.getElementById('luckyColor');
+            const fortuneResult = document.getElementById('fortuneResult');
+            
+            if (fortuneTitle && userData.userData.name) {
+                fortuneTitle.textContent = `${userData.userData.name}님의 ${getInterestName(interest)}`;
+            }
+            
+            if (fortuneText) {
+                fortuneText.textContent = fortunes.text;
+            }
+            
+            if (luckyNumbers) {
+                luckyNumbers.innerHTML = fortunes.numbers.map(n => 
+                    `<span class="lucky-number">${n}</span>`).join('');
+            }
+            
+            if (luckyColor) {
+                luckyColor.textContent = fortunes.color;
+            }
+            
+            if (fortuneResult) {
+                fortuneResult.classList.add('show');
+            }
+            
+            fortuneGenerated = true;
+      //      userData.completedSteps = 4;
+            updateProgress();
+     
+            // ✅ 여기에 자동 데이터 전송 추가
+            const finalData = {
+                sessionId: userData.sessionId,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                name: userData.userData.name || '',
+                birth: userData.userData.birth || '',
+                gender: userData.userData.gender || '',
+                zodiac: selectedZodiac || '',
+                mood: selectedMood || 0,
+                energyLevel: document.getElementById('energyLevel').value || 0,
+                interest: document.getElementById('interest').value || '',
+                expectation: document.getElementById('expectation').value || 0,
+                completedSteps: userData.completedSteps,
+                totalSteps: 4,
+                completionRate: Math.round((userData.completedSteps / 4) * 100),
+                totalTime: Math.round((Date.now() - userData.startTime) / 1000),
+                actions: userData.userActions
+            };
+            
+            sendToGoogleSheets(finalData);
+            logUserAction('data_save', 'completed');
+            alert('운세 데이터가 저장되었습니다! 🔮');
+        }
+        
+        function generateFortuneData(zodiac, interest, mood, energy, expectation) {
+            const fortuneTemplates = {
+                love: [
+                    "오늘은 특별한 인연을 만날 수 있는 날입니다. 마음을 열고 새로운 만남에 적극적으로 참여해보세요.",
+                    "기존 관계에서 새로운 발전이 있을 것 같습니다. 솔직한 마음을 표현하는 것이 중요해요.",
+                    "연애에 있어서 인내심이 필요한 시기입니다. 서두르지 말고 천천히 진행하세요."
+                ],
+                money: [
+                    "예상치 못한 수입이 생길 수 있는 길한 날입니다. 투자 기회를 놓치지 마세요.",
+                    "지출을 줄이고 저축에 집중하는 것이 좋겠습니다. 현명한 소비 습관을 기르세요.",
+                    "돈 관리에 있어서 계획적인 접근이 필요합니다. 가계부를 작성해보는 것은 어떨까요?"
+                ],
+                career: [
+                    "직장에서 인정받을 수 있는 기회가 다가옵니다. 자신감을 가지고 도전하세요.",
+                    "동료들과의 협력이 성공의 열쇠가 될 것입니다. 팀워크를 중시하세요.",
+                    "새로운 기술이나 지식을 습득하기 좋은 시기입니다. 자기계발에 투자하세요."
+                ],
+                health: [
+                    "몸과 마음의 균형을 맞추는 것이 중요합니다. 충분한 휴식을 취하세요.",
+                    "규칙적인 운동을 시작하기 좋은 때입니다. 작은 변화부터 시작해보세요.",
+                    "스트레스 관리에 신경 쓰세요. 명상이나 취미 활동이 도움이 될 것입니다."
+                ],
+                study: [
+                    "집중력이 높아지는 시기입니다. 어려운 과목에 도전해보세요.",
+                    "새로운 학습 방법을 시도해보는 것이 좋겠습니다. 그룹 스터디는 어떨까요?",
+                    "기초를 탄탄히 하는 데 집중하세요. 복습이 특히 효과적일 것입니다."
+                ],
+                friendship: [
+                    "오래된 친구와 다시 연락하기 좋은 날입니다. 먼저 안부를 물어보세요.",
+                    "새로운 사람들과의 만남이 즐거운 변화를 가져다 줄 것입니다.",
+                    "친구들과의 갈등이 있다면 해결할 수 있는 기회입니다. 대화를 시도해보세요."
+                ]
+            };
+            
+            const colors = ['빨간색', '파란색', '노란색', '초록색', '보라색', '주황색', '분홍색'];
+            
+            const moodBonus = selectedMood >= 4 ? "긍정적인 에너지가 좋은 결과를 가져다 줄 것입니다. " : "";
+            const energyBonus = energy >= 7 ? "높은 에너지를 잘 활용하면 더 큰 성과를 얻을 수 있어요. " : "";
+            
+            return {
+                text: moodBonus + energyBonus + fortuneTemplates[interest][Math.floor(Math.random() * 3)],
+                numbers: Array.from({length: 3}, () => Math.floor(Math.random() * 99) + 1),
+                color: colors[Math.floor(Math.random() * colors.length)]
+            };
+        }
+        
+        function getInterestName(interest) {
+            const names = {
+                love: '연애운',
+                money: '금전운', 
+                career: '사업/직장운',
+                health: '건강운',
+                study: '학업운',
+                friendship: '인간관계운'
+            };
+            return names[interest] || '운세';
+        }
+        
+        
+        async function sendToGoogleSheets(data) {
+            try {
+                console.log('📤 데이터 전송 시작:', data);
+                
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.text();
+                console.log('📥 서버 응답:', result);
+                
+                if (response.ok) {
+                    console.log('✅ 데이터 전송 성공');
+                    return true;
+                } else {
+                    console.error('❌ 서버 응답 오류:', response.status);
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ 데이터 전송 실패:', error);
+                console.log('💾 백업 데이터:', JSON.stringify(data, null, 2));
+                return false;
+            }
+        }
+        
+        // =============================================
+        // 이벤트 리스너 설정
+        // =============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDate();
+            console.log('운세 세션 시작:', userData.sessionId);
+            
+            // 1단계 버튼
+            document.getElementById('step1Btn').addEventListener('click', function() {
+                completeStep(1);
+            });
+            
+            // 2단계 버튼
+            document.getElementById('step2Btn').addEventListener('click', function() {
+                completeStep(2);
+            });
+            
+            // 3단계 버튼
+            document.getElementById('step3Btn').addEventListener('click', function() {
+                completeStep(3);
+            });
+            
+            // 별자리 선택 이벤트
+            document.getElementById('zodiacGrid').addEventListener('click', function(e) {
+                if (e.target.classList.contains('zodiac-btn')) {
+                    // 기존 선택 해제
+                    document.querySelectorAll('.zodiac-btn').forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    
+                    selectedZodiac = e.target.getAttribute('data-zodiac');
+                    document.getElementById('step2Btn').disabled = false;
+                    
+                    logUserAction('zodiac_select', selectedZodiac);
+                }
+            });
+            
+            // 기분 선택 이벤트
+            document.getElementById('moodSelector').addEventListener('click', function(e) {
+                if (e.target.classList.contains('mood-btn')) {
+                    document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    
+                    selectedMood = parseInt(e.target.getAttribute('data-mood'));
+                    document.getElementById('step3Btn').disabled = false;
+                    
+                    logUserAction('mood_select', selectedMood);
+                }
+            });
+            
+            // 에너지 슬라이더 이벤트
+            document.getElementById('energyLevel').addEventListener('input', function() {
+                const value = this.value;
+                document.getElementById('energyLevelValue').textContent = value + '/10';
+                logUserAction('slider_change', {type: 'energyLevel', value: value});
+            });
+            
+            // 기대치 슬라이더 이벤트
+            document.getElementById('expectation').addEventListener('input', function() {
+                const value = this.value;
+                document.getElementById('expectationValue').textContent = value + '/10';
+                logUserAction('slider_change', {type: 'expectation', value: value});
+            });
+            
+            // 관심사 선택 이벤트
+            document.getElementById('interest').addEventListener('change', function() {
+                logUserAction('interest_select', this.value);
+                if (this.value && userData.completedSteps >= 3) {
+                    document.getElementById('fortuneBtn').disabled = false;
+                }
+            });
+            
+            // 운세 생성 버튼
+            document.getElementById('fortuneBtn').addEventListener('click', function() {
+                generateFortune();
+            });
+            
+        });
+    </script>
+</body>
+</html>
